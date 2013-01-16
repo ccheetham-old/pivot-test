@@ -1,0 +1,18 @@
+case $OSTYPE in
+  darwin* | freebsd*)
+    alias ls='ls -FGH'
+    ;;
+  linux*)
+    alias ls='ls --classify --color'
+    ;;
+  solaris2.10)
+    alias ls='ls -p'
+    ;;
+  solaris*)
+    alias ls='ls --classify --color'
+    ;;
+esac
+
+alias mkdir='mkdir -p'
+
+# vim: ft=sh

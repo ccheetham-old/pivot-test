@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+BASEDIR=$(dirname $0)/..
+BINDIR=$BASEDIR/bin
+case $# in
+  0)
+    [[ -z $TMPDIR ]] && TMPDIR=/tmp
+    if [[ ${TMPDIR: -1} != / ]]; then
+      TMPDIR=$TMPDIR/
+    fi
+    HOME=${TMPDIR}$(basename $0).$(hostname).$$
+    ;;
+  1)
+    HOME=$1
+    if [[ ${HOME:0:1} != / ]]; then
+      HOME=$(pwd)/$HOME
+    fi
+    ;;
+  *)
+    echo error: wrong number params
+    echo usage: $(basename $0) [dir]
+    exit 1
+esac
+SHELL=$(which bash)
+SHELL_ARGS="-l"
+
+mkdir -p $HOME
+$BINDIR/install $HOME > $HOME/.install.log
+
+echo === entering test shell ===
+OLDPWD=$PWD
+cd $HOME
+SHELL=$SHELL $SHELL $SHELL_ARGS
+
+echo === exiting test shell ===
+cd $OLDPWD
+[[ -z $1 ]] && rm -r $HOME

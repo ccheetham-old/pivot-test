@@ -1,0 +1,4 @@
+version=0.1.4
+distrepo=http://pyyaml.org/download/libyaml/
+footprint=lib/libyaml.$SO
+# vim: ft=sh

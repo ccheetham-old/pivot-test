@@ -1,0 +1,5 @@
+version=6.2
+distrepo=http://mirror.rit.edu/gnu/gnu/readline/
+pre_configure_cmd='$PATCH -N -u support/shobj-conf $BASEDIR/src/readline-6.2.shobj-conf.patch'
+footprint=lib/libreadline.$SO
+# vim: ft=sh

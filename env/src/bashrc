@@ -1,0 +1,5 @@
+BASHD=$HOME/.bash.d
+
+for f in $BASHD/[0-9]*; do
+  [[ -f $f ]] && source $f
+done

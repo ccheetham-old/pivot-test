@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+
+if [[ $# != 1 ]]; then
+  echo "Usage: $(basename $0) target"
+  exit 1
+fi
+
+if [[ -n $DEBUG ]]; then
+  RUN=echo
+else
+  RUN=
+fi
+
+BASEDIR=$(cd $(dirname $0)/.. && pwd)
+PREFIX=$1
+CONFDIR=$BASEDIR/etc
+SRCDIR=$PREFIX/src
+TMPDIR=$BASEDIR/var
+DISTDIR=$TMPDIR/distfiles
+
+MKDIR='mkdir -p'
+DELETE='rm -rf'
+CC=gcc
+
+printf "=== INITIALIZING ===\n"
+
+$RUN $DELETE $TMPDIR
+$RUN $MKDIR $DISTDIR $SRCDIR $TMPDIR
+
+MAKE=make
+TAR=tar
+PATCH=patch
+if [[ $OSTYPE == solaris2.10 ]]; then
+  PATH=$PATH:/usr/sfw/bin:/usr/ccs/bin
+  MAKE=gmake
+  TAR=gtar
+  PATCH=gpatch
+fi
+if [[ $OSTYPE == freebsd* ]]; then
+  MAKE=gmake
+fi
+if [[ $OSTYPE == darwin* ]]; then
+  SO=dylib
+else
+  SO=so
+fi
+
+
+GEM_OPTS="--no-rdoc --no-ri"
+
+function fetch()
+{
+  local src=$1
+  local tgt=$2
+  $RUN wget $src -O $tgt
+}
+
+for name in $(cat $CONFDIR/pkglist); do
+  if [[ $name == \#* ]]; then
+    continue
+  fi
+
+  unset version footprint configopts pre_configure_cmd
+  source $CONFDIR/pkg.d/$name
+  ext=tar.gz
+  release=$name-$version
+  dist=$release.$ext
+  disturl=${distrepo}${dist}
+
+  printf "=== PACKAGE $release ===\n"
+
+  if [[ -f $PREFIX/$footprint ]]; then
+    continue
+  fi
+
+  printf "=== FETCH ===\n"
+  if [[ ! -e $DISTDIR/$dist ]]; then
+    fetch $disturl $DISTDIR/$dist || exit $?
+  fi
+
+  printf "=== EXTRACT ===\n"
+  $DELETE $SRCDIR/$release
+  $RUN $TAR xvf $DISTDIR/$dist -C $SRCDIR || exit $?
+
+  $RUN cd $SRCDIR/$release
+
+  printf "=== SOURCE PREP ===\n"
+  echo $pre_configure_cmd
+  $RUN eval $pre_configure_cmd || exit $?
+
+  printf "=== CONFIGURE ===\n"
+  if [[ -n $configure ]]; then
+    echo $configure
+    $RUN eval $configure || exit $?
+  else
+    CC=$CC $RUN ./configure --prefix=$PREFIX || exit $?
+  fi
+
+  printf "=== BUILD ===\n"
+  if [[ -n $build ]]; then
+    echo $build
+    $RUN eval $build || exit $?
+  else
+    $RUN $MAKE || exit $?
+  fi
+
+  printf "=== INSTALL ===\n"
+  if [[ -n $build ]]; then
+    echo $build
+    $RUN eval $build || exit $?
+  else
+    $RUN $MAKE install || exit $?
+  fi
+done
+
+export LD_LIBRARY_PATH=$PREFIX/lib
+export GEM_HOME=$PREFIX/lib/gems
+$RUN $MKDIR $TMPDIR/bin
+$RUN ln -s $(which $MAKE) $TMPDIR/bin/make
+PATH=$TMPDIR/bin:$PATH
+printf "=== UPDATING GEMS (system) ===\n"
+$RUN $PREFIX/bin/gem update $GEM_OPTS --system || exit $?
+printf "=== UPDATING GEMS ===\n"
+$RUN $PREFIX/bin/gem update $GEM_OPTS || exit $?
+
+for gem in $(cat $CONFDIR/gemlist); do
+  logfile=$BUILDDIR/$gem.log
+  printf "=== GEM $gem ===\n"
+  $RUN $PREFIX/bin/gem install $GEM_OPTS $gem || exit $?
+done
+
+printf "=== CLEANING UP ===\n"
+$RUN $DELETE $TMPDIR
+
+printf "=== DONE ===\n"

@@ -1,0 +1,6 @@
+version=1.9.3-p286
+distrepo=http://ftp.ruby-lang.org/pub/ruby/1.9/
+pre_configure_cmd='grep -v ^URL: $SRCDIR/$release/template/ruby.pc.in > $TMPDIR/ruby.pc.in; mv $TMPDIR/ruby.pc.in $SRCDIR/$release/template/'
+configure="./configure --prefix=$PREFIX --with-opt-dir=$PREFIX --disable-install-doc --disable-install-rdoc --disable-install-capi"
+footprint=bin/ruby
+# vim: ft=sh

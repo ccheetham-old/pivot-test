@@ -1,0 +1,32 @@
+unset dist
+case $OSTYPE in
+  linux-gnu)
+    if grep "Red Hat" /etc/issue > /dev/null; then
+      dist=rhel-$(head -1 /etc/issue | awk '{print $7}')
+    elif [[ -x /usr/bin/emerge ]]; then
+      dist=gentoo
+    fi
+    ;;
+  darwin*)
+    dist=darwin-${OSTYPE:6:2}
+    ;;
+esac
+[[ -z $dist ]] && dist=$OSTYPE
+case $(uname -m) in
+  i386|i586|i686)
+    proc=x32
+    ;;
+  x86_64)
+    proc=x64
+    ;;
+  *)
+    proc=unknown
+esac
+
+TOOL_HOME=~/tools/$dist-$proc
+PATH=$TOOL_HOME/bin:$PATH
+MANPATH=$TOOL_HOME/share/man:$MANPATH
+LD_LIBRARY_PATH=$TOOL_HOME/lib
+
+unset dist proc
+# vim: ft=sh

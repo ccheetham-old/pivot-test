@@ -1,0 +1,4 @@
+version=7.28.0
+distrepo=http://curl.haxx.se/download/
+footprint=bin/curl
+# vim: ft=sh

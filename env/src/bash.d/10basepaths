@@ -1,0 +1,5 @@
+export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+export MANPATH=/usr/share/man
+export LD_LIBRARY_PATH
+
+# vim: ft=sh

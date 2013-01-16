@@ -1,0 +1,17 @@
+pathmunge ()
+{
+  if ! echo $PATH | egrep "(^|:)$1($|:)" > /dev/null; then
+    if [ "$2" = "after" ] ; then
+      PATH=$PATH:$1
+    else
+      PATH=$1:$PATH
+    fi
+  fi
+}
+
+path ()
+{
+  echo $PATH | tr ':' '\n'
+}
+
+# vim: ft=sh

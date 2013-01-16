@@ -1,0 +1,10 @@
+case $OSTYPE in
+  linux*)
+    alias toor='sudo su -'
+    ;;
+  freebsd*)
+    alias toor='sudo su - boor'
+    ;;
+esac
+
+# vim: ft=sh

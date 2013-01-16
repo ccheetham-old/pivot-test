@@ -1,0 +1,11 @@
+
+for d in \
+  /usr/local/etc/bash_completion.d \
+  ; do
+  if [[ -f $d/git-completion.bash ]]; then
+    source $d/git-completion.bash
+    break
+  fi
+done
+
+ # vim: ft=sh

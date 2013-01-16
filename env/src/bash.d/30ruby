@@ -1,0 +1,4 @@
+export GEM_HOME=$TOOL_HOME/lib/gems
+PATH=$GEM_HOME/bin:$PATH
+
+# vim: ft=sh

@@ -1,0 +1,31 @@
+for d in \
+  /usr/local/etc/bash_completion.d \
+  /foo \
+  ; do
+  if [ -f $d/git-prompt.sh ]; then
+    source $d/git-prompt.sh
+    break
+  fi
+done
+
+if [[ $TERM == xterm-256color ]] && [[ $OSTYPE == solaris* ]]; then
+  TERM=xterm-color
+fi
+if [[ $TERM == xterm-color ]] && [[ $OSTYPE == solaris2.10 ]]; then
+  TERM=xterm
+fi
+
+case $TERM in
+  xterm*)
+    PS1="[\u@\h \w] \\$ "
+    PROMPT_COMMAND='echo -ne "\033]0;${USER}@$(hostname): ${PWD/#$HOME/~}\007"'
+    ;;
+esac
+
+#GIT_PS1_SHOWDIRTYSTATE=1
+#GIT_PS1_SHOWSTASHSTATE=1
+#GIT_PS1_SHOWUNTRACKEDFILES=1
+#GIT_PS1_SHOWUPSTREAM=auto
+#PS1='[\u@\h \W$(__git_ps1 " (%s)")]\$ '
+
+# vim: ft=sh
